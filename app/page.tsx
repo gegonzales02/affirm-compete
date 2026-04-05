@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import { useAnalyze } from "@/lib/useAnalyze";
 import {
@@ -92,6 +92,8 @@ export default function Home() {
   const [selectedAudience, setSelectedAudience] = useState("");
   const [pastedContent, setPastedContent] = useState("");
   const [pasteSource, setPasteSource] = useState("Ad Copy");
+  const [demoActive, setDemoActive] = useState(false);
+  const [demoStep, setDemoStep] = useState(0);
 
   const {
     output: analysisOutput,
@@ -481,6 +483,17 @@ export default function Home() {
         )}
       </div>
 
+      {/* Demo Tour */}
+      <DemoTour
+        active={demoActive}
+        step={demoStep}
+        onNext={() => setDemoStep(s => s + 1)}
+        onBack={() => setDemoStep(s => s - 1)}
+        onClose={() => { setDemoActive(false); setDemoStep(0); }}
+        onStart={() => { setDemoActive(true); setDemoStep(0); navigateTo("home"); }}
+        onNavigate={navigateTo}
+      />
+
       {/* Footer */}
       <footer className="border-t border-[#E8EAF0] mt-auto">
         <div className="max-w-[1120px] mx-auto px-5 sm:px-8 py-5 flex items-center justify-between">
@@ -685,5 +698,223 @@ function EmptyState({ icon, title, desc }: { icon: React.ReactNode; title: strin
         <p className="text-[13px] text-[#5A6180] mt-1.5 max-w-sm mx-auto leading-relaxed">{desc}</p>
       </div>
     </div>
+  );
+}
+
+/* ======================================================== */
+/*  INTERACTIVE DEMO TOUR                                    */
+/* ======================================================== */
+
+const DEMO_STEPS = [
+  {
+    id: "welcome",
+    tab: "home",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4A3AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <polygon points="10 8 16 12 10 16 10 8" fill="#4A3AFF" stroke="none" />
+      </svg>
+    ),
+    title: "Welcome to Compete",
+    description: "Compete is Affirm's AI-powered competitive intelligence tool. It helps PMMs track competitor messaging, find positioning gaps, and generate sharper copy — all in one place.",
+    detail: "Let's walk through each feature so you know exactly how to use it.",
+  },
+  {
+    id: "pulse",
+    tab: "pulse",
+    icon: icons.pulse,
+    title: "Weekly Competitive Pulse",
+    description: "Your Monday morning starts here. One click generates a full competitive intelligence brief across all 5 BNPL competitors.",
+    detail: "AI analyzes positioning shifts, assigns threat levels, and recommends specific actions for the week. Hit \"Generate Pulse\" to try it live.",
+  },
+  {
+    id: "paste",
+    tab: "paste",
+    icon: icons.paste,
+    title: "Paste & Analyze",
+    description: "Spotted a competitor ad, email, or landing page? Paste it in. AI instantly identifies which competitor it is, what they're saying, and how we should respond.",
+    detail: "Select the content type, paste the text, and get back a full breakdown — threats, opportunities, and recommended talking points.",
+  },
+  {
+    id: "overlap",
+    tab: "overlap",
+    icon: icons.overlap,
+    title: "Overlap Analyzer",
+    description: "Pick any competitor. AI compares their messaging to ours side-by-side and finds exactly where we collide, where they're stronger, and where we have whitespace to own.",
+    detail: "Use this before writing new positioning, updating battle cards, or prepping for a competitive deal.",
+  },
+  {
+    id: "sharpen",
+    tab: "sharpen",
+    icon: icons.sharpen,
+    title: "Message Sharpener",
+    description: "Choose a competitor and a target audience. AI rewrites our positioning to win that specific matchup — with copy that could actually ship.",
+    detail: "Outputs include a killer one-liner, detailed value prop rewrites, a sales talk track, and key proof points.",
+  },
+  {
+    id: "share",
+    tab: "home",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+        <polyline points="16 6 12 2 8 6" />
+        <line x1="12" y1="2" x2="12" y2="15" />
+      </svg>
+    ),
+    title: "Share with Your Team",
+    description: "Every analysis has a \"Share\" button. Copy formatted output for Slack or email, grab the raw markdown, or download as a file.",
+    detail: "Your teammates get a professional brief with a header, date, and Affirm branding — ready to paste anywhere.",
+  },
+  {
+    id: "done",
+    tab: "home",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+      </svg>
+    ),
+    title: "You're All Set!",
+    description: "That's the full tour. Compete is ready for your team to use — start with the Weekly Pulse to see it in action.",
+    detail: "Built with Claude AI for the Affirm PMM team.",
+  },
+];
+
+function DemoTour({ active, step, onNext, onBack, onClose, onStart, onNavigate }: {
+  active: boolean;
+  step: number;
+  onNext: () => void;
+  onBack: () => void;
+  onClose: () => void;
+  onStart: () => void;
+  onNavigate: (tab: string) => void;
+}) {
+  const totalSteps = DEMO_STEPS.length;
+  const currentStep = DEMO_STEPS[step] || DEMO_STEPS[0];
+  const isLastStep = step === totalSteps - 1;
+  const isFirstStep = step === 0;
+
+  // Navigate to the correct tab when step changes
+  useEffect(() => {
+    if (active && currentStep) {
+      onNavigate(currentStep.tab);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, step]);
+
+  // Floating trigger button (always visible when tour not active)
+  if (!active) {
+    return (
+      <button
+        onClick={onStart}
+        className="fixed bottom-6 right-6 z-50 demo-trigger-btn group"
+        title="Start Interactive Demo"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
+        </svg>
+        <span>Take a Tour</span>
+      </button>
+    );
+  }
+
+  return (
+    <>
+      {/* Backdrop overlay */}
+      <div className="fixed inset-0 z-[60] bg-[#0F1629]/40 backdrop-blur-sm demo-overlay-enter" onClick={onClose} />
+
+      {/* Tour card — fixed at bottom right */}
+      <div className="fixed bottom-6 right-6 z-[70] w-[400px] max-w-[calc(100vw-48px)] demo-card-enter">
+        <div className="bg-white rounded-2xl shadow-2xl border border-[#E8EAF0] overflow-hidden">
+          {/* Progress bar */}
+          <div className="h-1 bg-[#F3F4F8]">
+            <div
+              className="h-full bg-gradient-to-r from-[#4A3AFF] to-[#6C5CE7] transition-all duration-500 ease-out rounded-full"
+              style={{ width: `${((step + 1) / totalSteps) * 100}%` }}
+            />
+          </div>
+
+          {/* Header with close */}
+          <div className="flex items-center justify-between px-6 pt-5 pb-0">
+            <span className="text-[11px] font-semibold text-[#8B91A8] uppercase tracking-[0.1em]">
+              Step {step + 1} of {totalSteps}
+            </span>
+            <button
+              onClick={onClose}
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-[#8B91A8] hover:text-[#0F1629] hover:bg-[#F3F4F8] transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="px-6 py-5">
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-[#F0EEFF] flex items-center justify-center shrink-0 text-[#4A3AFF]">
+                {currentStep.icon}
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-[17px] font-bold text-[#0F1629] tracking-[-0.01em] mb-1.5">
+                  {currentStep.title}
+                </h3>
+                <p className="text-[13.5px] text-[#3D4663] leading-relaxed mb-2">
+                  {currentStep.description}
+                </p>
+                <p className="text-[12.5px] text-[#8B91A8] leading-relaxed">
+                  {currentStep.detail}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer actions */}
+          <div className="px-6 pb-5 flex items-center justify-between gap-3">
+            <div>
+              {!isFirstStep && (
+                <button onClick={onBack} className="btn-secondary text-[12px] py-[7px]">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+                  </svg>
+                  Back
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {!isLastStep && (
+                <button onClick={onClose} className="text-[12px] text-[#8B91A8] hover:text-[#3D4663] font-medium px-2 py-1 transition-colors">
+                  Skip tour
+                </button>
+              )}
+              {isLastStep ? (
+                <button onClick={onClose} className="btn-primary text-[12px] py-[7px]">
+                  Get Started
+                  {icons.arrowRight}
+                </button>
+              ) : (
+                <button onClick={onNext} className="btn-primary text-[12px] py-[7px]">
+                  Next
+                  {icons.arrowRight}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Step dots */}
+          <div className="px-6 pb-4 flex justify-center gap-1.5">
+            {DEMO_STEPS.map((_, i) => (
+              <div
+                key={i}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  i === step ? "w-5 bg-[#4A3AFF]" : i < step ? "w-1.5 bg-[#4A3AFF]/30" : "w-1.5 bg-[#E8EAF0]"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
