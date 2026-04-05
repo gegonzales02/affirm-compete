@@ -74,3 +74,11 @@ textarea:focus, input:focus, select:focus {
   background: #4A3AFF;
   animation: pulse-ring 1.5s ease-out infinite;
 }
+
+@keyframes fade-in {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}

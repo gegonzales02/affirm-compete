@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { useAnalyze } from "@/lib/useAnalyze";
 import {
@@ -82,7 +82,14 @@ export default function Home() {
     resetAnalysis();
   }
 
-  const handleCopy = (text: string) => {
+  const handleCopyFormatted = (text: string, label: string) => {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    const formatted = `📊 ${label}\nGenerated ${dateStr} via Compete (Affirm PMM)\n${"—".repeat(40)}\n\n${text}\n\n${"—".repeat(40)}\n🔗 Generated with Compete — Affirm's AI competitive intelligence tool`;
+    navigator.clipboard.writeText(formatted);
+  };
+
+  const handleCopyRaw = (text: string) => {
     navigator.clipboard.writeText(text);
   };
 
@@ -338,7 +345,9 @@ export default function Home() {
                     content={analysisOutput}
                     isStreaming={analysisStreaming}
                     streamLabel="Analyzing competitor content against our positioning..."
-                    onCopy={() => handleCopy(analysisOutput)}
+                    shareLabel="Paste & Analyze — Competitor Content Intel"
+                    onCopyFormatted={() => handleCopyFormatted(analysisOutput, "Paste & Analyze — Competitor Content Intel")}
+                    onCopyRaw={() => handleCopyRaw(analysisOutput)}
                     onDownload={() => handleDownload(analysisOutput, "paste-analysis.md")}
                   />
                 ) : (
@@ -369,7 +378,7 @@ export default function Home() {
               <div className="flex-1">
                 {pulseError && <p className="text-red-500 text-sm mb-4 bg-red-50 px-4 py-2 rounded-lg">{pulseError}</p>}
                 {(pulseOutput || pulseStreaming) ? (
-                  <AnalysisResult content={pulseOutput} isStreaming={pulseStreaming} streamLabel="Analyzing competitive landscape across all 5 competitors..." onCopy={() => handleCopy(pulseOutput)} onDownload={() => handleDownload(pulseOutput, "weekly-pulse.md")} />
+                  <AnalysisResult content={pulseOutput} isStreaming={pulseStreaming} streamLabel="Analyzing competitive landscape across all 5 competitors..." shareLabel="Weekly Competitive Pulse" onCopyFormatted={() => handleCopyFormatted(pulseOutput, "Weekly Competitive Pulse")} onCopyRaw={() => handleCopyRaw(pulseOutput)} onDownload={() => handleDownload(pulseOutput, "weekly-pulse.md")} />
                 ) : (
                   <EmptyState
                     title="Your Monday morning starts here"
@@ -424,7 +433,7 @@ export default function Home() {
             {/* Analysis output */}
             {analysisError && <p className="text-red-500 text-sm mb-4 bg-red-50 px-4 py-2 rounded-lg">{analysisError}</p>}
             {(analysisOutput || analysisStreaming) ? (
-              <AnalysisResult content={analysisOutput} isStreaming={analysisStreaming} streamLabel={`Finding messaging gaps between us and ${comp.name}...`} onCopy={() => handleCopy(analysisOutput)} onDownload={() => handleDownload(analysisOutput, `overlap-vs-${selectedCompetitor}.md`)} />
+              <AnalysisResult content={analysisOutput} isStreaming={analysisStreaming} streamLabel={`Finding messaging gaps between us and ${comp.name}...`} shareLabel={`Overlap Analysis — Affirm vs. ${comp.name}`} onCopyFormatted={() => handleCopyFormatted(analysisOutput, `Overlap Analysis — Affirm vs. ${comp.name}`)} onCopyRaw={() => handleCopyRaw(analysisOutput)} onDownload={() => handleDownload(analysisOutput, `overlap-vs-${selectedCompetitor}.md`)} />
             ) : (
               <EmptyState
                 title="Select a competitor and hit Analyze"
@@ -465,7 +474,7 @@ export default function Home() {
             {/* Output */}
             {analysisError && <p className="text-red-500 text-sm mb-4 bg-red-50 px-4 py-2 rounded-lg">{analysisError}</p>}
             {(analysisOutput || analysisStreaming) ? (
-              <AnalysisResult content={analysisOutput} isStreaming={analysisStreaming} streamLabel={`Sharpening our messaging against ${comp.name} for ${selectedAudience}...`} onCopy={() => handleCopy(analysisOutput)} onDownload={() => handleDownload(analysisOutput, `sharpen-vs-${selectedCompetitor}.md`)} />
+              <AnalysisResult content={analysisOutput} isStreaming={analysisStreaming} streamLabel={`Sharpening our messaging against ${comp.name} for ${selectedAudience}...`} shareLabel={`Message Sharpener — vs. ${comp.name} for ${selectedAudience}`} onCopyFormatted={() => handleCopyFormatted(analysisOutput, `Message Sharpener — vs. ${comp.name} for ${selectedAudience}`)} onCopyRaw={() => handleCopyRaw(analysisOutput)} onDownload={() => handleDownload(analysisOutput, `sharpen-vs-${selectedCompetitor}.md`)} />
             ) : (
               <EmptyState
                 title="Choose who we're up against and who we're talking to"
@@ -538,13 +547,36 @@ function CompactCard({ label, name, items, accent, badge }: {
   );
 }
 
-function AnalysisResult({ content, isStreaming, streamLabel, onCopy, onDownload }: {
+function AnalysisResult({ content, isStreaming, streamLabel, shareLabel, onCopyFormatted, onCopyRaw, onDownload }: {
   content: string;
   isStreaming: boolean;
   streamLabel: string;
-  onCopy: () => void;
+  shareLabel: string;
+  onCopyFormatted: () => void;
+  onCopyRaw: () => void;
   onDownload: () => void;
 }) {
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowShareMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  function handleAction(action: () => void, label: string) {
+    action();
+    setCopied(label);
+    setShowShareMenu(false);
+    setTimeout(() => setCopied(null), 2000);
+  }
+
   return (
     <div className="rounded-xl border border-[#E5E7EB] bg-white overflow-hidden shadow-sm">
       <div className="flex items-center justify-between px-5 py-3 border-b border-[#E5E7EB] bg-[#F4F5F7]">
@@ -565,13 +597,76 @@ function AnalysisResult({ content, isStreaming, streamLabel, onCopy, onDownload 
           )}
         </div>
         {content && !isStreaming && (
-          <div className="flex gap-2">
-            <button onClick={onCopy} className="px-3 py-1.5 text-xs font-medium rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#101820] hover:bg-white transition-colors">
-              Copy
+          <div className="flex items-center gap-2 relative" ref={menuRef}>
+            {/* Copied toast */}
+            {copied && (
+              <span className="absolute -top-8 right-0 px-3 py-1 rounded-lg bg-[#101820] text-white text-xs font-medium shadow-lg animate-fade-in whitespace-nowrap">
+                {copied}
+              </span>
+            )}
+
+            {/* Share button (primary) */}
+            <button
+              onClick={() => setShowShareMenu(!showShareMenu)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#4A3AFF] text-white text-xs font-semibold hover:bg-[#3B2FD9] transition-colors shadow-sm"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                <polyline points="16 6 12 2 8 6" />
+                <line x1="12" y1="2" x2="12" y2="15" />
+              </svg>
+              Share with Team
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
             </button>
-            <button onClick={onDownload} className="px-3 py-1.5 text-xs font-medium rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#101820] hover:bg-white transition-colors">
-              Download .md
-            </button>
+
+            {/* Dropdown menu */}
+            {showShareMenu && (
+              <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl border border-[#E5E7EB] shadow-xl z-50 overflow-hidden">
+                <div className="px-4 py-2.5 border-b border-[#E5E7EB] bg-[#F4F5F7]">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[#9CA3AF]">Share options</span>
+                </div>
+                <div className="py-1">
+                  <button
+                    onClick={() => handleAction(onCopyFormatted, "Copied for Slack/Email!")}
+                    className="w-full text-left px-4 py-3 hover:bg-[#F0EEFF] transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">💬</span>
+                      <div>
+                        <div className="text-sm font-medium text-[#101820] group-hover:text-[#4A3AFF]">Copy for Slack / Email</div>
+                        <div className="text-[11px] text-[#9CA3AF]">Formatted with header, date & footer</div>
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleAction(onCopyRaw, "Raw markdown copied!")}
+                    className="w-full text-left px-4 py-3 hover:bg-[#F0EEFF] transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">📋</span>
+                      <div>
+                        <div className="text-sm font-medium text-[#101820] group-hover:text-[#4A3AFF]">Copy Raw Markdown</div>
+                        <div className="text-[11px] text-[#9CA3AF]">Plain text, no formatting</div>
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleAction(onDownload, "Downloaded!")}
+                    className="w-full text-left px-4 py-3 hover:bg-[#F0EEFF] transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">📥</span>
+                      <div>
+                        <div className="text-sm font-medium text-[#101820] group-hover:text-[#4A3AFF]">Download as .md File</div>
+                        <div className="text-[11px] text-[#9CA3AF]">Save to share as an attachment</div>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
