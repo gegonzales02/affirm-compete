@@ -810,108 +810,114 @@ function DemoTour({ active, step, onNext, onBack, onClose, onStart, onNavigate }
         className="fixed bottom-6 right-6 z-50 demo-trigger-btn group"
         title="Start Interactive Demo"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />
-          <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
         </svg>
-        <span>Take a Tour</span>
+        <span>Product Tour</span>
       </button>
     );
   }
 
+  const progress = ((step + 1) / totalSteps) * 100;
+
   return (
     <>
-      {/* Backdrop overlay */}
-      <div className="fixed inset-0 z-[60] bg-[#0F1629]/40 backdrop-blur-sm demo-overlay-enter" onClick={onClose} />
+      {/* Light scrim — NO blur, just a subtle dim so the page stays visible */}
+      <div className="fixed inset-0 z-[60] bg-black/15 demo-overlay-enter" onClick={onClose} />
 
-      {/* Tour card — fixed at bottom right */}
-      <div className="fixed bottom-6 right-6 z-[70] w-[400px] max-w-[calc(100vw-48px)] demo-card-enter">
-        <div className="bg-white rounded-2xl shadow-2xl border border-[#E8EAF0] overflow-hidden">
-          {/* Progress bar */}
-          <div className="h-1 bg-[#F3F4F8]">
+      {/* Tour card — bottom center, wider, cleaner */}
+      <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[70] w-[520px] max-w-[calc(100vw-32px)] demo-card-enter">
+        <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "0 25px 60px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)" }}>
+          {/* Progress bar — thin colored line */}
+          <div className="h-[3px] bg-[#F3F4F8]">
             <div
-              className="h-full bg-gradient-to-r from-[#4A3AFF] to-[#6C5CE7] transition-all duration-500 ease-out rounded-full"
-              style={{ width: `${((step + 1) / totalSteps) * 100}%` }}
+              className="h-full bg-gradient-to-r from-[#4A3AFF] to-[#6C5CE7] transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
             />
           </div>
 
-          {/* Header with close */}
-          <div className="flex items-center justify-between px-6 pt-5 pb-0">
-            <span className="text-[11px] font-semibold text-[#8B91A8] uppercase tracking-[0.1em]">
-              Step {step + 1} of {totalSteps}
-            </span>
-            <button
-              onClick={onClose}
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-[#8B91A8] hover:text-[#0F1629] hover:bg-[#F3F4F8] transition-colors"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
+          <div className="px-7 pt-5 pb-6">
+            {/* Top row: step counter + close */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                {/* Step dots inline */}
+                <div className="flex items-center gap-1">
+                  {DEMO_STEPS.map((_, i) => (
+                    <div
+                      key={i}
+                      className={`rounded-full transition-all duration-300 ${
+                        i === step ? "w-4 h-[5px] bg-[#4A3AFF]" : i < step ? "w-[5px] h-[5px] bg-[#4A3AFF]/40" : "w-[5px] h-[5px] bg-[#D8DAE5]"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-[11px] font-medium text-[#8B91A8]">
+                  {step + 1}/{totalSteps}
+                </span>
+              </div>
+              <button
+                onClick={onClose}
+                className="w-6 h-6 rounded-md flex items-center justify-center text-[#8B91A8] hover:text-[#0F1629] hover:bg-[#F3F4F8] transition-colors"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
 
-          {/* Content */}
-          <div className="px-6 py-5">
-            <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-[#F0EEFF] flex items-center justify-center shrink-0 text-[#4A3AFF]">
+            {/* Content — icon + text side by side */}
+            <div className="flex items-start gap-4 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-[#F0EEFF] flex items-center justify-center shrink-0 text-[#4A3AFF]">
                 {currentStep.icon}
               </div>
-              <div className="min-w-0">
-                <h3 className="text-[17px] font-bold text-[#0F1629] tracking-[-0.01em] mb-1.5">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-[16px] font-bold text-[#0F1629] tracking-[-0.01em] mb-1">
                   {currentStep.title}
                 </h3>
-                <p className="text-[13.5px] text-[#3D4663] leading-relaxed mb-2">
+                <p className="text-[13px] text-[#3D4663] leading-[1.6]">
                   {currentStep.description}
                 </p>
-                <p className="text-[12.5px] text-[#8B91A8] leading-relaxed">
-                  {currentStep.detail}
-                </p>
+                {currentStep.detail && (
+                  <p className="text-[12px] text-[#8B91A8] leading-[1.5] mt-1.5">
+                    {currentStep.detail}
+                  </p>
+                )}
               </div>
             </div>
-          </div>
 
-          {/* Footer actions */}
-          <div className="px-6 pb-5 flex items-center justify-between gap-3">
-            <div>
-              {!isFirstStep && (
-                <button onClick={onBack} className="btn-secondary text-[12px] py-[7px]">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
-                  </svg>
-                  Back
-                </button>
-              )}
+            {/* Footer — back / skip / next */}
+            <div className="flex items-center justify-between">
+              <div>
+                {!isFirstStep ? (
+                  <button onClick={onBack} className="inline-flex items-center gap-1 text-[12px] text-[#5A6180] hover:text-[#0F1629] font-medium transition-colors">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                    Back
+                  </button>
+                ) : <div />}
+              </div>
+              <div className="flex items-center gap-3">
+                {!isLastStep && (
+                  <button onClick={onClose} className="text-[12px] text-[#8B91A8] hover:text-[#3D4663] font-medium transition-colors">
+                    Skip
+                  </button>
+                )}
+                {isLastStep ? (
+                  <button onClick={onClose} className="btn-primary text-[12px] py-[7px] px-4">
+                    Get Started
+                    {icons.arrowRight}
+                  </button>
+                ) : (
+                  <button onClick={onNext} className="btn-primary text-[12px] py-[7px] px-4">
+                    Next
+                    {icons.arrowRight}
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              {!isLastStep && (
-                <button onClick={onClose} className="text-[12px] text-[#8B91A8] hover:text-[#3D4663] font-medium px-2 py-1 transition-colors">
-                  Skip tour
-                </button>
-              )}
-              {isLastStep ? (
-                <button onClick={onClose} className="btn-primary text-[12px] py-[7px]">
-                  Get Started
-                  {icons.arrowRight}
-                </button>
-              ) : (
-                <button onClick={onNext} className="btn-primary text-[12px] py-[7px]">
-                  Next
-                  {icons.arrowRight}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Step dots */}
-          <div className="px-6 pb-4 flex justify-center gap-1.5">
-            {DEMO_STEPS.map((_, i) => (
-              <div
-                key={i}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === step ? "w-5 bg-[#4A3AFF]" : i < step ? "w-1.5 bg-[#4A3AFF]/30" : "w-1.5 bg-[#E8EAF0]"
-                }`}
-              />
-            ))}
           </div>
         </div>
       </div>
