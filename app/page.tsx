@@ -14,6 +14,8 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("home");
   const [selectedCompetitor, setSelectedCompetitor] = useState("klarna");
   const [selectedAudience, setSelectedAudience] = useState("");
+  const [pastedContent, setPastedContent] = useState("");
+  const [pasteSource, setPasteSource] = useState("Ad Copy");
 
   const {
     output: analysisOutput,
@@ -53,6 +55,16 @@ export default function Home() {
     });
   }
 
+  function handlePaste() {
+    if (!pastedContent.trim()) return;
+    runAnalysis({
+      type: "paste",
+      pastedContent: pastedContent,
+      source: pasteSource,
+      affirmData: affirm,
+    });
+  }
+
   function handlePulse() {
     runPulse({
       type: "pulse",
@@ -86,6 +98,7 @@ export default function Home() {
 
   const tabs = [
     { id: "home", label: "Home" },
+    { id: "paste", label: "Paste & Analyze" },
     { id: "pulse", label: "Weekly Pulse" },
     { id: "overlap", label: "Overlap Analyzer" },
     { id: "sharpen", label: "Sharpener" },
@@ -168,7 +181,7 @@ export default function Home() {
             </div>
 
             {/* Action Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
               <ActionCard
                 icon={
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4A3AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -180,6 +193,19 @@ export default function Home() {
                 buttonText="Generate This Week's Pulse"
                 onClick={() => { navigateTo("pulse"); handlePulse(); }}
                 tag="Most used"
+              />
+              <ActionCard
+                icon={
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4A3AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                }
+                title="Paste & Analyze"
+                description="Paste any competitor ad, email, or landing page. AI instantly tells you what they're saying and how we should respond."
+                buttonText="Paste Content"
+                onClick={() => navigateTo("paste")}
+                tag="New"
               />
               <ActionCard
                 icon={
@@ -244,6 +270,83 @@ export default function Home() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========== PASTE & ANALYZE ========== */}
+        {activeTab === "paste" && (
+          <div>
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-[#101820]">Paste & Analyze</h1>
+              <p className="text-[#6B7280] mt-1">Drop in any competitor content — an ad, landing page, email, press release — and get instant competitive intelligence.</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+              {/* Input side */}
+              <div className="lg:col-span-2">
+                <div className="border border-[#E5E7EB] rounded-xl bg-white p-5 sticky top-24">
+                  <div className="mb-4">
+                    <label className="text-sm font-medium text-[#101820] mb-1.5 block">Content type</label>
+                    <div className="flex flex-wrap gap-2">
+                      {["Ad Copy", "Landing Page", "Email", "Press Release", "Social Post", "Other"].map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => setPasteSource(s)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                            pasteSource === s
+                              ? "bg-[#F0EEFF] border-[#4A3AFF] text-[#4A3AFF]"
+                              : "border-[#E5E7EB] text-[#6B7280] hover:border-[#D1D5DB]"
+                          }`}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="text-sm font-medium text-[#101820] mb-1.5 block">Paste competitor content</label>
+                    <textarea
+                      value={pastedContent}
+                      onChange={(e) => setPastedContent(e.target.value)}
+                      placeholder={"Paste an ad, landing page copy, email, or press release from a competitor...\n\nExample: \"Pay in 4. No interest. No fees. Klarna makes shopping smoooth...\""}
+                      className="w-full h-48 px-4 py-3 rounded-lg bg-white border border-[#E5E7EB] text-sm text-[#101820] placeholder-[#9CA3AF] resize-none leading-relaxed"
+                    />
+                  </div>
+
+                  <button
+                    onClick={handlePaste}
+                    disabled={analysisStreaming || !pastedContent.trim()}
+                    className="w-full px-5 py-3 rounded-lg bg-[#4A3AFF] text-white font-semibold text-sm hover:bg-[#3B2FD9] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                  >
+                    {analysisStreaming ? "Analyzing..." : "Analyze This Content"}
+                  </button>
+
+                  <p className="text-[10px] text-[#9CA3AF] mt-3 text-center">
+                    AI compares this against our positioning and generates actionable intel
+                  </p>
+                </div>
+              </div>
+
+              {/* Output side */}
+              <div className="lg:col-span-3">
+                {analysisError && <p className="text-red-500 text-sm mb-4 bg-red-50 px-4 py-2 rounded-lg">{analysisError}</p>}
+                {(analysisOutput || analysisStreaming) ? (
+                  <AnalysisResult
+                    content={analysisOutput}
+                    isStreaming={analysisStreaming}
+                    streamLabel="Analyzing competitor content against our positioning..."
+                    onCopy={() => handleCopy(analysisOutput)}
+                    onDownload={() => handleDownload(analysisOutput, "paste-analysis.md")}
+                  />
+                ) : (
+                  <EmptyState
+                    title="Paste something to analyze"
+                    desc="Drop in a competitor ad, email, or landing page. AI will instantly tell you what they're saying, how it threatens our positioning, and what we should do about it."
+                  />
+                )}
               </div>
             </div>
           </div>

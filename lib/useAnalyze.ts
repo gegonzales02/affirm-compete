@@ -4,12 +4,14 @@ import { useState, useCallback } from "react";
 import { CompetitorData } from "./competitors";
 
 interface AnalyzeParams {
-  type: "overlap" | "sharpen" | "pulse";
+  type: "overlap" | "sharpen" | "pulse" | "paste";
   competitor?: string;
   audience?: string;
   affirmData?: CompetitorData;
   competitorData?: CompetitorData;
   allCompetitors?: Record<string, CompetitorData>;
+  pastedContent?: string;
+  source?: string;
 }
 
 export function useAnalyze() {

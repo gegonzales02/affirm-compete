@@ -3,6 +3,7 @@ import {
   SYSTEM_PROMPT,
   buildOverlapPrompt,
   buildSharpenPrompt,
+  buildPastePrompt,
   buildPulsePrompt,
 } from "@/lib/prompts";
 
@@ -11,10 +12,10 @@ export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
-    const { type, competitor, audience, affirmData, competitorData, allCompetitors } =
+    const { type, competitor, audience, affirmData, competitorData, allCompetitors, pastedContent, source } =
       await request.json();
 
-    if (!type || !["overlap", "sharpen", "pulse"].includes(type)) {
+    if (!type || !["overlap", "sharpen", "pulse", "paste"].includes(type)) {
       return new Response(
         JSON.stringify({ error: "Invalid analysis type" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
@@ -37,6 +38,8 @@ export async function POST(request: Request) {
       userPrompt = buildOverlapPrompt(competitor, affirmData, competitorData);
     } else if (type === "sharpen") {
       userPrompt = buildSharpenPrompt(competitor, audience, affirmData, competitorData);
+    } else if (type === "paste") {
+      userPrompt = buildPastePrompt(pastedContent, source, affirmData);
     } else if (type === "pulse") {
       userPrompt = buildPulsePrompt(allCompetitors);
     }

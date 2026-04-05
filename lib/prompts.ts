@@ -55,6 +55,45 @@ One sentence we could use in a landing page, ad, or sales deck that directly pos
 Be bold. Write copy that could actually ship, not safe placeholder language.`;
 }
 
+export function buildPastePrompt(pastedContent: string, source: string, affirmData: unknown): string {
+  return `You are analyzing competitor content that was just pasted by an Affirm PMM. This is fresh intelligence — treat it as a real-time competitive signal.
+
+SOURCE TYPE: ${source}
+
+PASTED COMPETITOR CONTENT:
+---
+${pastedContent}
+---
+
+OUR CURRENT POSITIONING:
+${JSON.stringify(affirmData, null, 2)}
+
+Analyze this content and produce:
+
+## What They're Saying
+Summarize the key messaging themes, value props, and positioning in this content. Be specific — pull exact phrases.
+
+## Which Competitor Is This?
+Identify which BNPL competitor this likely belongs to (or state if unclear). Explain what gave it away.
+
+## Direct Threats to Our Positioning
+2-3 specific claims or angles in this content that directly compete with something we say. Quote both their language and ours.
+
+## Opportunities We Should Jump On
+2-3 things this content reveals — gaps they're leaving open, claims we can counter, or angles they're avoiding that we own.
+
+## Recommended Response
+If you were the PMM, what would you do with this intel? Be specific:
+- Should we update any messaging?
+- Is there a sales enablement action?
+- Should we flag this to leadership?
+
+## Quick-Fire Talking Points
+3 bullet points a salesperson could use TODAY if a prospect mentions this competitor's messaging.
+
+Write like you're dropping this in a #competitive-intel Slack channel — concise, opinionated, actionable.`;
+}
+
 export function buildPulsePrompt(allCompetitors: unknown): string {
   return `You are generating a Weekly Competitive Pulse for our PMM team. Today is ${new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}.
 
