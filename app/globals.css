@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: #00d4aa;
+  --color-primary-dark: #00b894;
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-hover: #334155;
+  --color-border: #334155;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.prose-output h1 { font-size: 1.5rem; font-weight: 700; margin: 1.5rem 0 0.75rem; color: #f1f5f9; }
+.prose-output h2 { font-size: 1.25rem; font-weight: 600; margin: 1.25rem 0 0.5rem; color: #e2e8f0; }
+.prose-output h3 { font-size: 1.1rem; font-weight: 600; margin: 1rem 0 0.5rem; color: #cbd5e1; }
+.prose-output p { margin: 0.5rem 0; line-height: 1.7; color: #cbd5e1; }
+.prose-output ul, .prose-output ol { margin: 0.5rem 0; padding-left: 1.5rem; color: #cbd5e1; }
+.prose-output li { margin: 0.25rem 0; line-height: 1.6; }
+.prose-output ul { list-style-type: disc; }
+.prose-output ol { list-style-type: decimal; }
+.prose-output strong { color: #f1f5f9; font-weight: 600; }
+.prose-output em { color: #94a3b8; }
+.prose-output code { background: #1e293b; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.875rem; color: #00d4aa; }
+.prose-output pre { background: #1e293b; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 0.75rem 0; }
+.prose-output pre code { background: none; padding: 0; color: #e2e8f0; }
+.prose-output blockquote { border-left: 3px solid #00d4aa; padding-left: 1rem; margin: 0.75rem 0; color: #94a3b8; }
+.prose-output hr { border-color: #334155; margin: 1.5rem 0; }
+.prose-output table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; }
+.prose-output th, .prose-output td { border: 1px solid #334155; padding: 0.5rem 0.75rem; text-align: left; }
+.prose-output th { background: #1e293b; font-weight: 600; color: #f1f5f9; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+textarea:focus, input:focus, select:focus {
+  outline: none;
+  border-color: #00d4aa !important;
+  box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.15);
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.streaming-cursor::after {
+  content: '▊';
+  animation: blink 1s infinite;
+  color: #00d4aa;
+  margin-left: 2px;
+}
