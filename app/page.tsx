@@ -10,17 +10,8 @@ import {
   SAVED_ANALYSES,
 } from "@/lib/competitors";
 
-const colorMap: Record<string, string> = {
-  affirm: "#00d4aa",
-  klarna: "#ffb3c7",
-  afterpay: "#b2fce4",
-  paypal: "#ffd86e",
-  zip: "#a78bfa",
-  sezzle: "#67e8f9",
-};
-
 export default function Home() {
-  const [activeTab, setActiveTab] = useState("landscape");
+  const [activeTab, setActiveTab] = useState("home");
   const [selectedCompetitor, setSelectedCompetitor] = useState("klarna");
   const [selectedAudience, setSelectedAudience] = useState("");
 
@@ -74,6 +65,11 @@ export default function Home() {
     resetAnalysis();
   }
 
+  function navigateTo(tab: string) {
+    setActiveTab(tab);
+    resetAnalysis();
+  }
+
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
   };
@@ -89,36 +85,38 @@ export default function Home() {
   };
 
   const tabs = [
+    { id: "home", label: "Home" },
     { id: "pulse", label: "Weekly Pulse" },
-    { id: "landscape", label: "Landscape" },
     { id: "overlap", label: "Overlap Analyzer" },
     { id: "sharpen", label: "Sharpener" },
   ];
 
   return (
-    <div>
-      {/* Top Bar */}
-      <nav className="sticky top-0 z-50 border-b border-[#334155] bg-[#0f172a]/95 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-14">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#00d4aa] flex items-center justify-center font-extrabold text-[#0f172a] text-sm">
-                C
-              </div>
+    <div className="min-h-screen">
+      {/* ===== NAV BAR ===== */}
+      <nav className="sticky top-0 z-50 border-b border-[#E5E7EB] bg-white/95 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigateTo("home")}>
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <circle cx="16" cy="16" r="16" fill="#4A3AFF" />
+                <path d="M10 22L16 10L22 22" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                <line x1="12" y1="18" x2="20" y2="18" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              </svg>
               <div>
-                <div className="font-bold text-white text-base leading-tight">Compete</div>
-                <div className="text-[10px] text-[#94a3b8] leading-tight">Competitive Messaging Center</div>
+                <div className="font-bold text-[#101820] text-lg leading-tight tracking-tight">Compete</div>
+                <div className="text-[11px] text-[#9CA3AF] leading-tight">by Affirm PMM</div>
               </div>
             </div>
             <div className="hidden md:flex items-center gap-1">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => { setActiveTab(tab.id); resetAnalysis(); }}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  onClick={() => navigateTo(tab.id)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     activeTab === tab.id
-                      ? "bg-[#00d4aa]/15 text-[#00d4aa]"
-                      : "text-[#94a3b8] hover:text-white hover:bg-[#1e293b]"
+                      ? "bg-[#F0EEFF] text-[#4A3AFF]"
+                      : "text-[#6B7280] hover:text-[#101820] hover:bg-[#F4F5F7]"
                   }`}
                 >
                   {tab.label}
@@ -126,19 +124,20 @@ export default function Home() {
               ))}
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#00d4aa]" />
-              <span className="text-xs text-[#94a3b8]">Live — powered by Claude</span>
+              <span className="relative w-2 h-2 rounded-full bg-[#4A3AFF] pulse-dot" />
+              <span className="text-xs text-[#9CA3AF] font-medium">Powered by Claude</span>
             </div>
           </div>
-          <div className="md:hidden flex items-center gap-1 pb-2 overflow-x-auto">
+          {/* Mobile tabs */}
+          <div className="md:hidden flex items-center gap-1 pb-3 overflow-x-auto">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => { setActiveTab(tab.id); resetAnalysis(); }}
-                className={`px-2.5 py-1 rounded text-xs font-medium whitespace-nowrap transition-colors ${
+                onClick={() => navigateTo(tab.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
                   activeTab === tab.id
-                    ? "bg-[#00d4aa]/15 text-[#00d4aa]"
-                    : "text-[#94a3b8] hover:text-white"
+                    ? "bg-[#F0EEFF] text-[#4A3AFF]"
+                    : "text-[#6B7280] hover:text-[#101820]"
                 }`}
               >
                 {tab.label}
@@ -148,35 +147,141 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+
+        {/* ========== HOME ========== */}
+        {activeTab === "home" && (
+          <div>
+            {/* Hero */}
+            <div className="text-center mb-12 pt-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F0EEFF] text-[#4A3AFF] text-xs font-semibold mb-4">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#4A3AFF]" />
+                AI-Powered Competitive Intelligence
+              </div>
+              <h1 className="text-4xl sm:text-5xl font-extrabold text-[#101820] tracking-tight leading-tight">
+                Know what they&apos;re saying.<br />
+                <span className="text-[#4A3AFF]">Say it better.</span>
+              </h1>
+              <p className="text-lg text-[#6B7280] mt-4 max-w-2xl mx-auto leading-relaxed">
+                Compete analyzes BNPL competitor positioning in real time and generates actionable messaging intelligence — so our PMM team always stays a step ahead.
+              </p>
+            </div>
+
+            {/* Action Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
+              <ActionCard
+                icon={
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4A3AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                  </svg>
+                }
+                title="Weekly Pulse"
+                description="Get a one-click competitive intelligence brief. AI analyzes all 5 competitors and surfaces what changed, what matters, and what to do about it."
+                buttonText="Generate This Week's Pulse"
+                onClick={() => { navigateTo("pulse"); handlePulse(); }}
+                tag="Most used"
+              />
+              <ActionCard
+                icon={
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4A3AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M8 12h8M12 8v8" />
+                  </svg>
+                }
+                title="Overlap Analyzer"
+                description="Pick any competitor. AI compares their messaging to ours and finds exactly where we collide, where they're stronger, and where we have whitespace to own."
+                buttonText="Find Messaging Gaps"
+                onClick={() => navigateTo("overlap")}
+              />
+              <ActionCard
+                icon={
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4A3AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                }
+                title="Message Sharpener"
+                description="Choose a competitor + target audience. AI rewrites our positioning to be sharper for that specific matchup — with copy that could actually ship."
+                buttonText="Sharpen Our Messaging"
+                onClick={() => navigateTo("sharpen")}
+              />
+            </div>
+
+            {/* Recent Activity */}
+            <div className="border border-[#E5E7EB] rounded-xl bg-white overflow-hidden">
+              <div className="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+                <h3 className="font-semibold text-[#101820]">Recent Analyses</h3>
+                <span className="text-xs text-[#9CA3AF]">{SAVED_ANALYSES.length} saved</span>
+              </div>
+              <div className="divide-y divide-[#E5E7EB]">
+                {SAVED_ANALYSES.map((h, i) => (
+                  <div key={i} className="px-6 py-3 flex items-center justify-between hover:bg-[#F4F5F7] transition-colors cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide ${
+                        h.type === "pulse" ? "bg-[#F0EEFF] text-[#4A3AFF]" :
+                        h.type === "overlap" ? "bg-amber-50 text-amber-600" :
+                        "bg-emerald-50 text-emerald-600"
+                      }`}>
+                        {h.type}
+                      </span>
+                      <span className="text-sm font-medium text-[#101820]">{h.title}</span>
+                    </div>
+                    <span className="text-xs text-[#9CA3AF]">{h.date}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Competitor Quick Reference */}
+            <div className="mt-8">
+              <h3 className="text-sm font-semibold text-[#9CA3AF] uppercase tracking-wider mb-4">Competitors We Track</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                {COMPETITOR_KEYS.map((key) => {
+                  const c = COMPETITORS[key];
+                  return (
+                    <div key={key} className="border border-[#E5E7EB] rounded-lg p-4 bg-white hover:border-[#4A3AFF] hover:shadow-sm transition-all cursor-pointer" onClick={() => { setSelectedCompetitor(key); navigateTo("overlap"); }}>
+                      <div className="font-semibold text-sm text-[#101820]">{c.name}</div>
+                      <div className="text-[11px] text-[#9CA3AF] mt-1 italic line-clamp-1">{c.tagline}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ========== WEEKLY PULSE ========== */}
         {activeTab === "pulse" && (
           <div>
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-white">Weekly Competitive Pulse</h1>
-              <p className="text-[#94a3b8] mt-1">AI-generated intelligence brief on competitive positioning shifts. Run every Monday to stay ahead.</p>
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h1 className="text-2xl font-bold text-[#101820]">Weekly Competitive Pulse</h1>
+                <p className="text-[#6B7280] mt-1">One click. AI analyzes all 5 competitors and tells you what changed, what matters, and what to do.</p>
+              </div>
+              <button onClick={handlePulse} disabled={pulseStreaming} className="shrink-0 px-5 py-2.5 rounded-lg bg-[#4A3AFF] text-white font-semibold text-sm hover:bg-[#3B2FD9] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+                {pulseStreaming ? "Generating..." : "Generate Pulse"}
+              </button>
             </div>
+
             <div className="flex flex-col lg:flex-row gap-6">
               <div className="flex-1">
-                <button onClick={handlePulse} disabled={pulseStreaming} className="mb-6 px-6 py-2.5 rounded-lg bg-[#00d4aa] text-[#0f172a] font-semibold text-sm hover:bg-[#00b894] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                  {pulseStreaming ? "Generating pulse..." : "Generate This Week's Pulse"}
-                </button>
-                {pulseError && <p className="text-red-400 text-sm mb-4">{pulseError}</p>}
+                {pulseError && <p className="text-red-500 text-sm mb-4 bg-red-50 px-4 py-2 rounded-lg">{pulseError}</p>}
                 {(pulseOutput || pulseStreaming) ? (
-                  <AnalysisResult content={pulseOutput} isStreaming={pulseStreaming} streamLabel="Analyzing competitive landscape..." onCopy={() => handleCopy(pulseOutput)} onDownload={() => handleDownload(pulseOutput, "weekly-pulse.md")} />
+                  <AnalysisResult content={pulseOutput} isStreaming={pulseStreaming} streamLabel="Analyzing competitive landscape across all 5 competitors..." onCopy={() => handleCopy(pulseOutput)} onDownload={() => handleDownload(pulseOutput, "weekly-pulse.md")} />
                 ) : (
-                  <EmptyState icon="&#9733;" title="Your weekly intel brief" desc='Click "Generate" to get this week&apos;s competitive analysis across all 5 competitors.' />
+                  <EmptyState
+                    title="Your Monday morning starts here"
+                    desc="Hit Generate to get a full competitive intelligence brief — positioning shifts, threat levels, and recommended actions for this week."
+                  />
                 )}
               </div>
-              <div className="w-full lg:w-72 shrink-0">
-                <div className="rounded-xl border border-[#334155] bg-[#1e293b]/50 p-4">
-                  <h3 className="text-sm font-semibold text-white mb-3">Recent Analyses</h3>
+              <div className="w-full lg:w-64 shrink-0">
+                <div className="rounded-xl border border-[#E5E7EB] bg-white p-4">
+                  <h3 className="text-sm font-semibold text-[#101820] mb-3">Recent Pulses</h3>
                   <div className="space-y-2">
-                    {SAVED_ANALYSES.map((h, i) => (
-                      <div key={i} className="p-3 rounded-lg border border-[#334155] hover:border-[#475569] hover:bg-[#1e293b] transition-colors cursor-pointer">
-                        <div className="text-[10px] text-[#94a3b8]">{h.date}</div>
-                        <div className="text-xs font-medium text-white mt-1">{h.title}</div>
+                    {SAVED_ANALYSES.filter(h => h.type === "pulse").map((h, i) => (
+                      <div key={i} className="p-3 rounded-lg border border-[#E5E7EB] hover:border-[#4A3AFF] hover:bg-[#F0EEFF]/30 transition-all cursor-pointer">
+                        <div className="text-[10px] text-[#9CA3AF] font-medium">{h.date}</div>
+                        <div className="text-xs font-medium text-[#101820] mt-1">{h.title}</div>
                       </div>
                     ))}
                   </div>
@@ -186,86 +291,42 @@ export default function Home() {
           </div>
         )}
 
-        {/* ========== LANDSCAPE ========== */}
-        {activeTab === "landscape" && (
-          <div>
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-white">Competitive Landscape</h1>
-              <p className="text-[#94a3b8] mt-1">Our positioning vs. what competitors are saying. All sourced from public materials.</p>
-            </div>
-            <div className="mb-8">
-              <div className="text-xs font-bold uppercase tracking-wider text-[#00d4aa] mb-3">Our Positioning</div>
-              <div className="rounded-xl border border-[#334155] bg-[#1e293b]/50 overflow-hidden" style={{ borderTopWidth: 3, borderTopColor: "#00d4aa" }}>
-                <div className="flex items-center justify-between px-6 py-4 border-b border-[#334155]">
-                  <div>
-                    <h2 className="text-xl font-bold text-white">Affirm</h2>
-                    <p className="text-sm text-[#94a3b8] italic mt-0.5">&quot;{affirm.tagline}&quot;</p>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-[#00d4aa]/15 text-[#00d4aa]">Home team</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-                  <Section title="Consumer Value Props" items={affirm.consumer} color="#00d4aa" />
-                  <Section title="Merchant Value Props" items={affirm.merchant} color="#00d4aa" />
-                  <Section title="Our Differentiators" items={affirm.differentiators} color="#00d4aa" />
-                </div>
-              </div>
-            </div>
-            <div className="text-xs font-bold uppercase tracking-wider text-[#94a3b8] mb-3">Competitors We Track</div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-              {COMPETITOR_KEYS.map((key) => {
-                const c = COMPETITORS[key];
-                return (
-                  <div key={key} className="rounded-xl border border-[#334155] bg-[#1e293b]/50 overflow-hidden" style={{ borderTopWidth: 3, borderTopColor: colorMap[key] }}>
-                    <div className="px-5 py-4 border-b border-[#334155]">
-                      <h3 className="text-lg font-bold text-white">{c.name}</h3>
-                      <p className="text-xs text-[#94a3b8] italic mt-0.5">&quot;{c.tagline}&quot;</p>
-                    </div>
-                    <div className="p-5 space-y-4">
-                      <Section title="Consumer Value Props" items={c.consumer.slice(0, 4)} color={colorMap[key]} />
-                      <Section title="Merchant Value Props" items={c.merchant.slice(0, 3)} color={colorMap[key]} />
-                      <Section title="Their Differentiators" items={c.differentiators.slice(0, 3)} color={colorMap[key]} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
         {/* ========== OVERLAP ANALYZER ========== */}
         {activeTab === "overlap" && (
           <div>
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-white">Overlap Analyzer</h1>
-              <p className="text-[#94a3b8] mt-1">Find where our messaging collides with a competitor — and where we have whitespace to own.</p>
+              <h1 className="text-2xl font-bold text-[#101820]">Overlap Analyzer</h1>
+              <p className="text-[#6B7280] mt-1">Find where our messaging collides with a competitor — and where we have whitespace to own.</p>
             </div>
+
+            {/* Controls */}
             <div className="flex flex-wrap items-center gap-3 mb-6">
-              <select value={selectedCompetitor} onChange={(e) => handleCompetitorChange(e.target.value)} className="px-4 py-2.5 rounded-lg bg-[#1e293b] border border-[#334155] text-white text-sm font-medium appearance-none cursor-pointer min-w-[200px]">
-                {COMPETITOR_KEYS.map((k) => (<option key={k} value={k}>{COMPETITORS[k].name}</option>))}
-              </select>
-              <button onClick={handleOverlap} disabled={analysisStreaming} className="px-6 py-2.5 rounded-lg bg-[#00d4aa] text-[#0f172a] font-semibold text-sm hover:bg-[#00b894] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-[#6B7280]">Compare against:</span>
+                <select value={selectedCompetitor} onChange={(e) => handleCompetitorChange(e.target.value)} className="px-4 py-2.5 rounded-lg bg-white border border-[#E5E7EB] text-[#101820] text-sm font-medium cursor-pointer min-w-[180px]">
+                  {COMPETITOR_KEYS.map((k) => (<option key={k} value={k}>{COMPETITORS[k].name}</option>))}
+                </select>
+              </div>
+              <button onClick={handleOverlap} disabled={analysisStreaming} className="px-5 py-2.5 rounded-lg bg-[#4A3AFF] text-white font-semibold text-sm hover:bg-[#3B2FD9] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
                 {analysisStreaming ? "Analyzing..." : "Analyze Overlap"}
               </button>
             </div>
+
+            {/* Side by side comparison cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="rounded-xl border border-[#334155] bg-[#1e293b]/50 p-5" style={{ borderTopWidth: 3, borderTopColor: "#00d4aa" }}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-white">Our Messaging</h3>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#00d4aa]/15 text-[#00d4aa]">Affirm</span>
-                </div>
-                <Section title="Key Messages" items={[...affirm.consumer.slice(0, 3), ...affirm.differentiators.slice(0, 2)]} color="#00d4aa" />
-              </div>
-              <div className="rounded-xl border border-[#334155] bg-[#1e293b]/50 p-5" style={{ borderTopWidth: 3, borderTopColor: colorMap[selectedCompetitor] }}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-white">{comp.name}</h3>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-white/5 text-[#94a3b8]">Competitor</span>
-                </div>
-                <Section title="Key Messages" items={[...comp.consumer.slice(0, 3), ...comp.differentiators.slice(0, 2)]} color={colorMap[selectedCompetitor]} />
-              </div>
+              <CompactCard label="Our Messaging" name="Affirm" items={[...affirm.consumer.slice(0, 3), ...affirm.differentiators.slice(0, 2)]} accent="#4A3AFF" badge="Us" />
+              <CompactCard label="Their Messaging" name={comp.name} items={[...comp.consumer.slice(0, 3), ...comp.differentiators.slice(0, 2)]} accent="#6B7280" badge="Them" />
             </div>
-            {analysisError && <p className="text-red-400 text-sm mb-4">{analysisError}</p>}
-            {(analysisOutput || analysisStreaming) && (
-              <AnalysisResult content={analysisOutput} isStreaming={analysisStreaming} streamLabel={`Analyzing our messaging overlap with ${comp.name}...`} onCopy={() => handleCopy(analysisOutput)} onDownload={() => handleDownload(analysisOutput, `overlap-vs-${selectedCompetitor}.md`)} />
+
+            {/* Analysis output */}
+            {analysisError && <p className="text-red-500 text-sm mb-4 bg-red-50 px-4 py-2 rounded-lg">{analysisError}</p>}
+            {(analysisOutput || analysisStreaming) ? (
+              <AnalysisResult content={analysisOutput} isStreaming={analysisStreaming} streamLabel={`Finding messaging gaps between us and ${comp.name}...`} onCopy={() => handleCopy(analysisOutput)} onDownload={() => handleDownload(analysisOutput, `overlap-vs-${selectedCompetitor}.md`)} />
+            ) : (
+              <EmptyState
+                title="Select a competitor and hit Analyze"
+                desc="AI will compare our positioning head-to-head — finding overlaps, gaps, and opportunities."
+              />
             )}
           </div>
         )}
@@ -274,27 +335,39 @@ export default function Home() {
         {activeTab === "sharpen" && (
           <div>
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-white">Message Sharpener</h1>
-              <p className="text-[#94a3b8] mt-1">Pick a competitor and target audience. Get our positioning rewritten to win that specific matchup.</p>
+              <h1 className="text-2xl font-bold text-[#101820]">Message Sharpener</h1>
+              <p className="text-[#6B7280] mt-1">Pick a competitor and audience. AI rewrites our positioning to win that specific matchup — with copy that could actually ship.</p>
             </div>
+
+            {/* Controls */}
             <div className="flex flex-wrap items-center gap-3 mb-6">
-              <select value={selectedCompetitor} onChange={(e) => handleCompetitorChange(e.target.value)} className="px-4 py-2.5 rounded-lg bg-[#1e293b] border border-[#334155] text-white text-sm font-medium appearance-none cursor-pointer min-w-[200px]">
-                {COMPETITOR_KEYS.map((k) => (<option key={k} value={k}>{COMPETITORS[k].name}</option>))}
-              </select>
-              <select value={selectedAudience} onChange={(e) => setSelectedAudience(e.target.value)} className="px-4 py-2.5 rounded-lg bg-[#1e293b] border border-[#334155] text-white text-sm font-medium appearance-none cursor-pointer min-w-[280px]">
-                <option value="">Select an audience...</option>
-                {AUDIENCES.map((a) => (<option key={a} value={a}>{a}</option>))}
-              </select>
-              <button onClick={handleSharpen} disabled={analysisStreaming || !selectedAudience} className="px-6 py-2.5 rounded-lg bg-[#00d4aa] text-[#0f172a] font-semibold text-sm hover:bg-[#00b894] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-[#6B7280]">Against:</span>
+                <select value={selectedCompetitor} onChange={(e) => handleCompetitorChange(e.target.value)} className="px-4 py-2.5 rounded-lg bg-white border border-[#E5E7EB] text-[#101820] text-sm font-medium cursor-pointer min-w-[160px]">
+                  {COMPETITOR_KEYS.map((k) => (<option key={k} value={k}>{COMPETITORS[k].name}</option>))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-[#6B7280]">For:</span>
+                <select value={selectedAudience} onChange={(e) => setSelectedAudience(e.target.value)} className="px-4 py-2.5 rounded-lg bg-white border border-[#E5E7EB] text-[#101820] text-sm font-medium cursor-pointer min-w-[260px]">
+                  <option value="">Select an audience...</option>
+                  {AUDIENCES.map((a) => (<option key={a} value={a}>{a}</option>))}
+                </select>
+              </div>
+              <button onClick={handleSharpen} disabled={analysisStreaming || !selectedAudience} className="px-5 py-2.5 rounded-lg bg-[#4A3AFF] text-white font-semibold text-sm hover:bg-[#3B2FD9] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
                 {analysisStreaming ? "Sharpening..." : "Sharpen Positioning"}
               </button>
             </div>
-            {analysisError && <p className="text-red-400 text-sm mb-4">{analysisError}</p>}
-            {!selectedAudience && !analysisOutput && !analysisStreaming && (
-              <EmptyState icon="&#9998;" title="Select a competitor and audience" desc="Choose who we're up against and who we're talking to. Claude will rewrite our positioning to be sharper for that specific matchup." />
-            )}
-            {(analysisOutput || analysisStreaming) && (
-              <AnalysisResult content={analysisOutput} isStreaming={analysisStreaming} streamLabel={`Sharpening our positioning against ${comp.name} for ${selectedAudience}...`} onCopy={() => handleCopy(analysisOutput)} onDownload={() => handleDownload(analysisOutput, `sharpen-vs-${selectedCompetitor}.md`)} />
+
+            {/* Output */}
+            {analysisError && <p className="text-red-500 text-sm mb-4 bg-red-50 px-4 py-2 rounded-lg">{analysisError}</p>}
+            {(analysisOutput || analysisStreaming) ? (
+              <AnalysisResult content={analysisOutput} isStreaming={analysisStreaming} streamLabel={`Sharpening our messaging against ${comp.name} for ${selectedAudience}...`} onCopy={() => handleCopy(analysisOutput)} onDownload={() => handleDownload(analysisOutput, `sharpen-vs-${selectedCompetitor}.md`)} />
+            ) : (
+              <EmptyState
+                title="Choose who we're up against and who we're talking to"
+                desc="AI will rewrite our value props to be sharper for that specific competitive matchup — including a killer one-liner and sales talk track."
+              />
             )}
           </div>
         )}
@@ -305,14 +378,55 @@ export default function Home() {
 
 /* ===== Sub-components ===== */
 
-function Section({ title, items, color }: { title: string; items: string[]; color: string }) {
+function ActionCard({ icon, title, description, buttonText, onClick, tag }: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  buttonText: string;
+  onClick: () => void;
+  tag?: string;
+}) {
   return (
-    <div>
-      <div className="text-[10px] font-bold uppercase tracking-wider text-[#94a3b8] mb-2">{title}</div>
-      <ul className="space-y-1.5">
+    <div className="border border-[#E5E7EB] rounded-xl bg-white p-6 hover:border-[#4A3AFF] hover:shadow-md transition-all group relative">
+      {tag && (
+        <span className="absolute top-4 right-4 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#F0EEFF] text-[#4A3AFF]">
+          {tag}
+        </span>
+      )}
+      <div className="w-10 h-10 rounded-lg bg-[#F0EEFF] flex items-center justify-center mb-4">
+        {icon}
+      </div>
+      <h3 className="font-bold text-[#101820] text-lg mb-2">{title}</h3>
+      <p className="text-sm text-[#6B7280] leading-relaxed mb-5">{description}</p>
+      <button onClick={onClick} className="w-full px-4 py-2.5 rounded-lg bg-[#4A3AFF] text-white font-semibold text-sm hover:bg-[#3B2FD9] transition-colors shadow-sm">
+        {buttonText}
+      </button>
+    </div>
+  );
+}
+
+function CompactCard({ label, name, items, accent, badge }: {
+  label: string;
+  name: string;
+  items: string[];
+  accent: string;
+  badge: string;
+}) {
+  return (
+    <div className="rounded-xl border border-[#E5E7EB] bg-white p-5" style={{ borderTopWidth: 3, borderTopColor: accent }}>
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-[#9CA3AF]">{label}</div>
+          <div className="font-bold text-[#101820] text-lg">{name}</div>
+        </div>
+        <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase" style={{ backgroundColor: `${accent}12`, color: accent }}>
+          {badge}
+        </span>
+      </div>
+      <ul className="space-y-2">
         {items.map((item, i) => (
-          <li key={i} className="flex items-start gap-2 text-xs text-[#cbd5e1] leading-relaxed">
-            <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: color }} />
+          <li key={i} className="flex items-start gap-2 text-sm text-[#4B5563] leading-relaxed">
+            <span className="w-1.5 h-1.5 rounded-full mt-2 shrink-0" style={{ backgroundColor: accent }} />
             {item}
           </li>
         ))}
@@ -321,23 +435,40 @@ function Section({ title, items, color }: { title: string; items: string[]; colo
   );
 }
 
-function AnalysisResult({ content, isStreaming, streamLabel, onCopy, onDownload }: { content: string; isStreaming: boolean; streamLabel: string; onCopy: () => void; onDownload: () => void }) {
+function AnalysisResult({ content, isStreaming, streamLabel, onCopy, onDownload }: {
+  content: string;
+  isStreaming: boolean;
+  streamLabel: string;
+  onCopy: () => void;
+  onDownload: () => void;
+}) {
   return (
-    <div className="rounded-xl border border-[#334155] bg-[#1e293b]/50">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-[#334155]">
+    <div className="rounded-xl border border-[#E5E7EB] bg-white overflow-hidden shadow-sm">
+      <div className="flex items-center justify-between px-5 py-3 border-b border-[#E5E7EB] bg-[#F4F5F7]">
         <div className="flex items-center gap-2">
           {isStreaming && (
-            <span className="flex items-center gap-1.5 text-[#00d4aa] text-sm">
-              <span className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
+            <span className="flex items-center gap-2 text-[#4A3AFF] text-sm font-medium">
+              <span className="w-2 h-2 rounded-full bg-[#4A3AFF] animate-pulse" />
               {streamLabel}
             </span>
           )}
-          {!isStreaming && content && <span className="text-[#94a3b8] text-sm">Complete</span>}
+          {!isStreaming && content && (
+            <span className="flex items-center gap-2 text-emerald-600 text-sm font-medium">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Analysis complete
+            </span>
+          )}
         </div>
         {content && !isStreaming && (
           <div className="flex gap-2">
-            <button onClick={onCopy} className="px-3 py-1 text-xs font-medium rounded-lg bg-[#334155] text-[#94a3b8] hover:text-white hover:bg-[#475569] transition-colors">Copy</button>
-            <button onClick={onDownload} className="px-3 py-1 text-xs font-medium rounded-lg bg-[#334155] text-[#94a3b8] hover:text-white hover:bg-[#475569] transition-colors">Download .md</button>
+            <button onClick={onCopy} className="px-3 py-1.5 text-xs font-medium rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#101820] hover:bg-white transition-colors">
+              Copy
+            </button>
+            <button onClick={onDownload} className="px-3 py-1.5 text-xs font-medium rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:text-[#101820] hover:bg-white transition-colors">
+              Download .md
+            </button>
           </div>
         )}
       </div>
@@ -350,13 +481,17 @@ function AnalysisResult({ content, isStreaming, streamLabel, onCopy, onDownload 
   );
 }
 
-function EmptyState({ icon, title, desc }: { icon: string; title: string; desc: string }) {
+function EmptyState({ title, desc }: { title: string; desc: string }) {
   return (
-    <div className="rounded-xl border border-[#334155] bg-[#1e293b]/50 flex items-center justify-center min-h-[300px]">
-      <div className="text-center text-[#94a3b8]">
-        <p className="text-4xl mb-3 opacity-30" dangerouslySetInnerHTML={{ __html: icon }} />
-        <p className="text-lg font-medium text-white">{title}</p>
-        <p className="text-sm mt-1 max-w-sm mx-auto">{desc}</p>
+    <div className="rounded-xl border border-dashed border-[#D1D5DB] bg-[#F4F5F7]/50 flex items-center justify-center min-h-[280px]">
+      <div className="text-center px-6">
+        <div className="w-12 h-12 rounded-full bg-[#F0EEFF] flex items-center justify-center mx-auto mb-4">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4A3AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+        </div>
+        <p className="text-base font-semibold text-[#101820]">{title}</p>
+        <p className="text-sm text-[#6B7280] mt-1.5 max-w-md mx-auto leading-relaxed">{desc}</p>
       </div>
     </div>
   );
